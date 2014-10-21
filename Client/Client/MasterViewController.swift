@@ -12,7 +12,7 @@ import SwiftHTTP
 class MasterViewController: UITableViewController, LoginDelegate {
 
     var detailViewController: DetailViewController? = nil
-    var objects = NSMutableArray()
+    var objects = Array<Guitar>()
     var user: User?
 
 
@@ -26,7 +26,8 @@ class MasterViewController: UITableViewController, LoginDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        let defaults = NSUserDefaults()
+        
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
 
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
@@ -35,14 +36,7 @@ class MasterViewController: UITableViewController, LoginDelegate {
             let controllers = split.viewControllers
             self.detailViewController = controllers[controllers.count-1].topViewController as? DetailViewController
         }
-        addButton.enabled = false
-        Guitar.all(1, token: "", success: { (guitars: Array<Guitar>) in
-            addButton.enabled = true
-            //load some guitars
-            }, { (error: NSError) in
-                println("failed to load the guitars: \(error)")
-        })
-    }
+}
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
@@ -50,6 +44,7 @@ class MasterViewController: UITableViewController, LoginDelegate {
             self.performSegueWithIdentifier("presentLogin", sender: self)
         }
     }
+    
     //make a HTTP call to insert a new item into the DB
     func insertNewObject(sender: AnyObject) {
         //coming next week!
@@ -71,7 +66,7 @@ class MasterViewController: UITableViewController, LoginDelegate {
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showDetail" {
             if let indexPath = self.tableView.indexPathForSelectedRow() {
-                let object = objects[indexPath.row] as NSDate
+                let object = objects[indexPath.row]
                 let controller = (segue.destinationViewController as UINavigationController).topViewController as DetailViewController
                 controller.detailItem = object
                 controller.navigationItem.leftBarButtonItem = self.splitViewController?.displayModeButtonItem()
@@ -83,9 +78,17 @@ class MasterViewController: UITableViewController, LoginDelegate {
         }
     }
     
+    //MARK: - Login Delegate
+    
     func didLogin(user: User) {
         self.user = user
         self.dismissViewControllerAnimated(true, completion: nil)
+        Guitar.all(1, token: user.authToken, success: { (guitars: Array<Guitar>) in
+            self.objects = guitars
+            self.tableView.reloadData()
+            }, { (error: NSError) in
+                println("failed to load the guitars: \(error)")
+        })
     }
 
     // MARK: - Table View
@@ -101,23 +104,24 @@ class MasterViewController: UITableViewController, LoginDelegate {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as UITableViewCell
 
-        let object = objects[indexPath.row] as NSDate
-        cell.textLabel?.text = object.description
+        let object = objects[indexPath.row]
+        if let name = object.name {
+         cell.textLabel.text = name
+        }
         return cell
     }
 
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
         return true
     }
 
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            objects.removeObjectAtIndex(indexPath.row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
-        }
+//        if editingStyle == .Delete {
+//            objects.removeObjectAtIndex(indexPath.row)
+//            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+//        } else if editingStyle == .Insert {
+//            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+//        }
     }
 
 

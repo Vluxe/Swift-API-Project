@@ -9,11 +9,13 @@
 import UIKit
 
 class DetailViewController: UIViewController {
-
     @IBOutlet weak var detailDescriptionLabel: UILabel!
 
-
-    var detailItem: AnyObject? {
+    required init(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
+    var detailItem: Guitar? {
         didSet {
             // Update the view.
             self.configureView()
@@ -21,10 +23,9 @@ class DetailViewController: UIViewController {
     }
 
     func configureView() {
-        // Update the user interface for the detail item.
-        if let detail: AnyObject = self.detailItem {
+        if let guitar = detailItem {
             if let label = self.detailDescriptionLabel {
-                label.text = detail.description
+                label.text = guitar.name
             }
         }
     }

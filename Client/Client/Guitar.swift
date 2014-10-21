@@ -13,19 +13,19 @@ import JSONJoy
 class Guitar: JSONJoy {
     
     var id: Int
-    var name: String
+    var name: String?
     var brand: String?
     var year: String?
-    var price: String?
+    var price: Int?
     var color: String?
     var imageUrl: String?
     
     required init(_ decoder: JSONDecoder) {
         id = decoder["id"].integer!
-        name = decoder["name"].string!
+        name = decoder["name"].string
         brand = decoder["brand"].string
         year = decoder["year"].string
-        price = decoder["price"].string
+        price = decoder["price"].integer
         color = decoder["color"].string
         imageUrl = decoder["image_url"].string
     }
