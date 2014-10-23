@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftHTTP
+import JSONJoy
 
 class MasterViewController: UITableViewController, LoginDelegate {
 
@@ -46,19 +47,19 @@ class MasterViewController: UITableViewController, LoginDelegate {
     }
     
     //make a HTTP call to insert a new item into the DB
-    func insertNewObject(sender: AnyObject) {
-        //coming next week!
-        
+    func insertNewObject(sender: AnyObject) {        
         //We post our newly created guitar, then add it to the UI.
-//        apiManger.POST("/guitars", parameters: ["auth_token": ""], success: { (response: HTTPResponse) in
-//            println("success")
-//            }, { (error: NSError) in
-//                println("got an error: \(error)")
-//        })
-//        //objects.insertObject(NSDate.date(), atIndex: 0)
-        
-        //let indexPath = NSIndexPath(forRow: 0, inSection: 0)
-        //self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        API.newTask().POST("/guitars", parameters: ["auth_token": user!.authToken], success: { (response: HTTPResponse) in
+            println("success")
+            if let obj: AnyObject = response.responseObject {
+                self.objects.append(Guitar(JSONDecoder(obj)))
+                
+                let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+                self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            }
+            }, { (error: NSError) in
+                println("got an error: \(error)")
+        })
     }
 
     // MARK: - Segues
@@ -120,7 +121,7 @@ class MasterViewController: UITableViewController, LoginDelegate {
 //            objects.removeObjectAtIndex(indexPath.row)
 //            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
 //        } else if editingStyle == .Insert {
-//            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
+//            insertNewObject(<#sender: AnyObject#>)
 //        }
     }
 
