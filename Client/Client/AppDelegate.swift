@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Skeets
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -17,9 +18,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         let splitViewController = self.window!.rootViewController as UISplitViewController
+        splitViewController.preferredDisplayMode =  .AllVisible
         let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as UINavigationController
         navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem()
         splitViewController.delegate = self
+        let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
+        ImageManager.sharedManager.cache.diskDirectory = "\(paths[0])/ImageCache"
+        ImageManager.sharedManager.cache.cleanDisk()
         return true
     }
 

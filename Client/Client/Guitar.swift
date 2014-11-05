@@ -20,6 +20,17 @@ class Guitar: JSONJoy {
     var color: String?
     var imageUrl: String?
     
+    //stand init method
+    init(name: String, brand: String, year: String, price: Int, color: String, imageUrl: String) {
+        self.id = 0
+        self.name = name
+        self.brand = brand
+        self.price = price
+        self.color = color
+        self.year = year
+        self.imageUrl = imageUrl
+    }
+    //decoder method
     required init(_ decoder: JSONDecoder) {
         id = decoder["id"].integer!
         name = decoder["name"].string
@@ -37,13 +48,15 @@ class Guitar: JSONJoy {
                 if let resp = response.responseObject as? NSData {
                     var array = JSONDecoder(resp).array
                     var guitars = Array<Guitar>()
-                    for decoder in array! {
-                        guitars.append(Guitar(decoder))
+                    if let arr = array {
+                        for decoder in arr {
+                            guitars.append(Guitar(decoder))
+                        }
                     }
                     success(guitars)
                 }
             }
-            }, { (error: NSError) in
+            }, { (error: NSError, response: HTTPResponse?) in
                 if failure != nil {
                     failure(error)
                 }

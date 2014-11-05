@@ -31,7 +31,7 @@ public class User: JSONJoy {
                     success(User(JSONDecoder(resp)))
                 }
             }
-            }, { (error: NSError) in
+            }, { (error: NSError, response: HTTPResponse?) in
                 if failure != nil {
                     failure(error)
                 }
@@ -46,7 +46,7 @@ public class User: JSONJoy {
                     success(User(JSONDecoder(resp)))
                 }
             }
-            }, { (error: NSError) in
+            }, { (error: NSError, response: HTTPResponse?) in
                 if failure != nil {
                     failure(error)
                 }

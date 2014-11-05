@@ -45,9 +45,6 @@ class DetailViewController: UIViewController {
             if let label = self.priceLabel {
                 label.text = "$\(guitar.price!)"
             }
-            let paths = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-            ImageManager.sharedManager.cache.diskDirectory = "\(paths[0])/ImageCache"
-            ImageManager.sharedManager.cache.cleanDisk()
             ImageManager.sharedManager.fetch(guitar.imageUrl!, progress: { (status: Double) in
             }, success: { (data: NSData) in
                 if let iv = self.imageView {

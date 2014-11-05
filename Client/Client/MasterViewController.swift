@@ -10,7 +10,7 @@ import UIKit
 import SwiftHTTP
 import JSONJoy
 
-class MasterViewController: UITableViewController, LoginDelegate {
+class MasterViewController: UITableViewController, LoginDelegate, NewDelegate {
 
     var detailViewController: DetailViewController? = nil
     var objects = Array<Guitar>()
@@ -47,19 +47,9 @@ class MasterViewController: UITableViewController, LoginDelegate {
     }
     
     //make a HTTP call to insert a new item into the DB
-    func insertNewObject(sender: AnyObject) {        
-        //We post our newly created guitar, then add it to the UI.
-        API.newTask().POST("/guitars", parameters: ["auth_token": user!.authToken], success: { (response: HTTPResponse) in
-            println("success")
-            if let obj: AnyObject = response.responseObject {
-                self.objects.append(Guitar(JSONDecoder(obj)))
-                
-                let indexPath = NSIndexPath(forRow: 0, inSection: 0)
-                self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-            }
-            }, { (error: NSError) in
-                println("got an error: \(error)")
-        })
+    func insertNewObject(sender: AnyObject) {
+        //open modal that has input dialog
+        self.performSegueWithIdentifier("presentNew", sender: self)
     }
 
     // MARK: - Segues
@@ -76,6 +66,9 @@ class MasterViewController: UITableViewController, LoginDelegate {
         } else if segue.identifier == "presentLogin" {
             let vc = segue.destinationViewController as LoginViewController
             vc.delegate = self
+        } else if segue.identifier == "presentNew" {
+            let controller = (segue.destinationViewController as UINavigationController).topViewController as NewGuitarController
+            controller.delegate = self
         }
     }
     
@@ -90,6 +83,25 @@ class MasterViewController: UITableViewController, LoginDelegate {
             }, { (error: NSError) in
                 println("failed to load the guitars: \(error)")
         })
+    }
+    
+    //MARK: - New Delegate
+    
+    //a new guitar from the newGuitarController
+    func didCreateGuitar(guitar: Guitar) {
+        API.newTask().POST("/guitars", parameters: ["auth_token": user!.authToken, "name": guitar.name!,
+            "brand": guitar.brand!, "year": guitar.year!, "color": guitar.color!, "price": guitar.price!], success: { (response: HTTPResponse) in
+            println("success")
+            if let obj: AnyObject = response.responseObject {
+                self.objects.append(Guitar(JSONDecoder(obj)))
+                
+                let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+                self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            }
+            }, { (error: NSError, response: HTTPResponse?) in
+                println("got an error: \(error)")
+        })
+
     }
 
     // MARK: - Table View
